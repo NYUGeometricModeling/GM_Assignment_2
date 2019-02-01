@@ -42,11 +42,7 @@ find_package(LIBIGL QUIET)
 
 # Add your project files
 # Note: we need some stubs for building to succeed on TravisCI.
-if (TRAVISCI_BUILD)
-    FILE(GLOB SOURCES src/*.cpp src_travisci/*.cpp)
-else (TRAVISCI_BUILD)
-    FILE(GLOB SOURCES src/*.cpp)
-endif (TRAVISCI_BUILD)
+FILE(GLOB SOURCES src/*.cpp)
 
 add_executable(${PROJECT_NAME}_bin ${SOURCES} ${LIBIGL_EXTRA_SOURCES})
 target_link_libraries(${PROJECT_NAME}_bin igl::core igl::opengl igl::opengl_glfw igl::opengl_glfw_imgui)
