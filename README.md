@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/NYUGeometricModeling/GM_Assignment_2.svg?branch=master)](https://travis-ci.org/NYUGeometricModeling/GM_Assignment_2)
+[![Build Status](https://travis-ci.org/NYUGraphics/GM_Assignment_2.svg?branch=master)](https://travis-ci.org/NYUGraphics/GM_Assignment_2)
 # Assignment 2: Implicit Surface Reconstruction
 
 This repository contains the viewer code and data files you'll need for
