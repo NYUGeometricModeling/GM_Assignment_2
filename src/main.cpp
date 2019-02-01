@@ -1,11 +1,14 @@
 #include <igl/readOFF.h>
-#include <igl/viewer/Viewer.h>
+#include <igl/opengl/glfw/Viewer.h>
 /*** insert any necessary libigl headers here ***/
 #include <igl/per_face_normals.h>
+#include <igl/opengl/glfw/imgui/ImGuiMenu.h>
+#include <igl/opengl/glfw/imgui/ImGuiHelpers.h>
+#include <imgui/imgui.h>
 #include <igl/copyleft/marching_cubes.h>
 
 using namespace std;
-using Viewer = igl::viewer::Viewer;
+using Viewer = igl::opengl::glfw::Viewer;
 
 // Input: imported points, #P x3
 Eigen::MatrixXd P;
@@ -161,15 +164,15 @@ void getLines() {
 bool callback_key_down(Viewer &viewer, unsigned char key, int modifiers) {
     if (key == '1') {
         // Show imported points
-        viewer.data.clear();
+        viewer.data().clear();
         viewer.core.align_camera_center(P);
-        viewer.core.point_size = 11;
-        viewer.data.add_points(P, Eigen::RowVector3d(0,0,0));
+        viewer.data().point_size = 11;
+        viewer.data().add_points(P, Eigen::RowVector3d(0,0,0));
     }
 
     if (key == '2') {
         // Show all constraints
-        viewer.data.clear();
+        viewer.data().clear();
         viewer.core.align_camera_center(P);
         // Add your code for computing auxiliary constraint points here
         // Add code for displaying all points, as above
@@ -177,7 +180,7 @@ bool callback_key_down(Viewer &viewer, unsigned char key, int modifiers) {
 
     if (key == '3') {
         // Show grid points with colored nodes and connected with lines
-        viewer.data.clear();
+        viewer.data().clear();
         viewer.core.align_camera_center(P);
         // Add code for creating a grid
         // Add your code for evaluating the implicit function at the grid points
@@ -211,9 +214,9 @@ bool callback_key_down(Viewer &viewer, unsigned char key, int modifiers) {
         }
 
         // Draw lines and points
-        viewer.core.point_size = 8;
-        viewer.data.add_points(grid_points, grid_colors);
-        viewer.data.add_edges(grid_lines.block(0, 0, grid_lines.rows(), 3),
+        viewer.data().point_size = 8;
+        viewer.data().add_points(grid_points, grid_colors);
+        viewer.data().add_edges(grid_lines.block(0, 0, grid_lines.rows(), 3),
                               grid_lines.block(0, 3, grid_lines.rows(), 3),
                               Eigen::RowVector3d(0.8, 0.8, 0.8));
         /*** end: sphere example ***/
@@ -221,7 +224,7 @@ bool callback_key_down(Viewer &viewer, unsigned char key, int modifiers) {
 
     if (key == '4') {
         // Show reconstructed mesh
-        viewer.data.clear();
+        viewer.data().clear();
         // Code for computing the mesh (V,F) from grid_points and grid_values
         if ((grid_points.rows() == 0) || (grid_values.rows() == 0)) {
             cerr << "Not enough data for Marching Cubes !" << endl;
@@ -235,10 +238,10 @@ bool callback_key_down(Viewer &viewer, unsigned char key, int modifiers) {
         }
 
         igl::per_face_normals(V, F, FN);
-        viewer.data.set_mesh(V, F);
-        viewer.core.show_lines = true;
-        viewer.core.show_faces = true;
-        viewer.data.set_normals(FN);
+        viewer.data().set_mesh(V, F);
+        viewer.data().show_lines = true;
+        viewer.data().show_faces = true;
+        viewer.data().set_normals(FN);
     }
 
     return true;
@@ -256,21 +259,25 @@ int main(int argc, char *argv[]) {
     Viewer viewer;
     viewer.callback_key_down = callback_key_down;
 
-    viewer.callback_init = [&](Viewer &v) {
+    // Attach a menu plugin
+    igl::opengl::glfw::imgui::ImGuiMenu menu;
+    viewer.plugins.push_back(&menu);
+
+    menu.callback_draw_viewer_menu = [&]() {
         // Add widgets to the sidebar.
-        v.ngui->addGroup("Reconstruction Options");
-        v.ngui->addVariable("Resolution", resolution);
-        v.ngui->addButton("Reset Grid", [&](){
-            // Recreate the grid
-            createGrid();
-            // Switch view to show the grid
-            callback_key_down(v, '3', 0);
-        });
+        if (ImGui::CollapsingHeader("Reconstruction Options", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::InputScalar("resolution", ImGuiDataType_U32, &resolution);
+            if (ImGui::Button("Reset Grid", ImVec2(-1,0))) {
+                // Recreate the grid
+                createGrid();
+                // Switch view to show the grid
+                callback_key_down(viewer, '3', 0);
+            }
 
         // TODO: Add more parameters to tweak here...
+        }
 
-        v.screen->performLayout();
-        return false;
     };
 
     viewer.launch();
