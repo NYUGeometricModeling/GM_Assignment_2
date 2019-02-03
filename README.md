@@ -30,7 +30,7 @@ repository on our organization.
 1. Follow the link sent out by Assistant
 2. Push your code to the repository (which will be created automatically):
 ```
-git push https://github.com/NYUGeometricModeling/Geometric_Modeling_Assignment2_USER
+git push https://github.com/NYUGraphics/GM_Assignment2_USER
 ```
 
 ## Travis-CI
