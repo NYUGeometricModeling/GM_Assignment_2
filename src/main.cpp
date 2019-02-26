@@ -264,6 +264,7 @@ int main(int argc, char *argv[]) {
     viewer.plugins.push_back(&menu);
 
     menu.callback_draw_viewer_menu = [&]() {
+		menu.draw_viewer_menu();
         // Add widgets to the sidebar.
         if (ImGui::CollapsingHeader("Reconstruction Options", ImGuiTreeNodeFlags_DefaultOpen))
         {
